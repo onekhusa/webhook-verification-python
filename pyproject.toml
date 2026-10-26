@@ -5,12 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "webhook-verification-python"
 version = "0.1.0"
-description = "In-memory OneKhusa Collections push-payment simulator"
+description = "In-memory OneKhusa Collections push-payment dashboard with webhook verification"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115,<1",
     "httpx>=0.28,<1",
+    "jinja2>=3.1,<4",
     "pydantic-settings>=2.7,<3",
     "structlog>=24.4,<26",
     "uvicorn[standard]>=0.34,<1",
@@ -28,13 +29,20 @@ dev = [
 include = [
     "/pyproject.toml",
     "/README.md",
+    "/fixtures",
     "/src",
     "/tests",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/webhook_verification"]
-include = ["src/webhook_verification/**/*.py", "src/webhook_verification/static/*.html"]
+include = [
+    "src/webhook_verification/**/*.py",
+    "src/webhook_verification/ui/*.html",
+    "src/webhook_verification/ui/*.css",
+    "src/webhook_verification/ui/*.js",
+    "src/webhook_verification/ui/*.svg",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
