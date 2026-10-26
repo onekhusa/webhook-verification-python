@@ -1,0 +1,8 @@
+{
+  "connectorId": 892353,
+  "sourceReferenceNumber": "ORDER-1042",
+  "transactionReferenceNumber": "PROVIDER-TXN-1042",
+  "transactionAmount": "12500.00",
+  "transactionStatusCode": "S",
+  "transactionDate": "2026-10-27T12:00:00Z"
+}
