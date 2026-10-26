@@ -1,0 +1,8 @@
+{
+  "connectorId": 892353,
+  "payerAccountNumber": "2659912345678",
+  "transactionAmount": "12500.00",
+  "transactionDescription": "Invoice INV-1042",
+  "capturedBy": "demo-merchant",
+  "sourceReferenceNumber": "ORDER-1042"
+}
