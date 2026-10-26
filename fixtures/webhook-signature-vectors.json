@@ -1,0 +1,37 @@
+{
+  "algorithm": "HMAC-SHA512",
+  "digestEncoding": "hex-lowercase",
+  "secret": "fixture-webhook-secret",
+  "vectors": [
+    {
+      "name": "success-valid",
+      "bodyFile": "pushpayment.success.json",
+      "signature": "ac780a733fbc5fdd8d6a67e66d744d5a1dbc61f37be1dd996e8ed623c62f6d2c0d98e41bef1ad0949978ee6129bc0f24dbc5917435bcd8b2af05f19f4ec87511",
+      "valid": true
+    },
+    {
+      "name": "failed-valid",
+      "bodyFile": "pushpayment.failed.json",
+      "signature": "1b97db1c83e0a5f8acf6e84b7f761092160d7a578358c7f9975c86b62968120b89cc2a42a29513549c189f584111a66d3719f3c35015e5d86bfee48b56e16d91",
+      "valid": true
+    },
+    {
+      "name": "reversed-valid",
+      "bodyFile": "pushpayment.reversed.json",
+      "signature": "3d1e1ed26b22aec550593aa4e95d5745d29ce40f74c32814e9787336f07a9834c2f79e1b78ad0a2700bd26041e1f651943ebe11b66f19b3111e318f2134288cd",
+      "valid": true
+    },
+    {
+      "name": "tampered-signature",
+      "bodyFile": "pushpayment.success.json",
+      "signature": "76a3169ee784c5af95bf4f1bd904c3fe160470381f8725ce373365685dab2252808dc8375188cf64731557195f089e20d6f63266127de6cf8b566a6b396d86db",
+      "valid": false
+    },
+    {
+      "name": "malformed-signature",
+      "bodyFile": "pushpayment.success.json",
+      "signature": "not-a-signature",
+      "valid": false
+    }
+  ]
+}
