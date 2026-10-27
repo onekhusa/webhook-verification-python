@@ -59,22 +59,24 @@ class ReceiveWebhook:
             )
             raise InvalidSignature
 
-        source_reference = payload.source_reference_number
+        # OneKhusa echoes the merchant's submitted reference in
+        # ``merchantReferenceNumber``. ``sourceReferenceNumber`` is the payer's
+        # bank/MNO reference, so it must not be used for correlation.
+        merchant_reference = payload.merchant_reference_number or payload.source_reference_number
         provider_reference = payload.transaction_reference_number
 
-        if not source_reference and not provider_reference:
+        if not merchant_reference and not provider_reference:
             logger.warning(
                 "onekhusa_webhook_missing_references",
                 event_type=event.value,
             )
-            raise ValueError("Webhook must contain a source or transaction reference")
-
-        identity = provider_reference or source_reference or ""
+            raise ValueError("Webhook must contain a merchant or transaction reference")
+        identity = provider_reference or merchant_reference or ""
         receipt_key = hashlib.sha256(f"{event.value}:{identity}".encode()).hexdigest()
 
         async with self._store.locked() as session:
             payment = session.find_for_webhook(
-                source_reference=source_reference,
+                merchant_reference=merchant_reference,
                 provider_reference=provider_reference,
             )
 
@@ -94,7 +96,7 @@ class ReceiveWebhook:
                 logger.warning(
                     "onekhusa_webhook_unmatched",
                     event_type=event.value,
-                    source_reference=source_reference,
+                    merchant_reference=merchant_reference,
                     provider_reference=provider_reference,
                 )
                 # Do not cache unmatched receipts. A retry may arrive after the
@@ -109,7 +111,7 @@ class ReceiveWebhook:
                 payment.transaction_reference_number = provider_reference
                 logger.info(
                     "onekhusa_webhook_provider_reference_reconciled",
-                    source_reference=source_reference,
+                    merchant_reference=merchant_reference,
                     provider_reference=provider_reference,
                 )
 
@@ -120,7 +122,7 @@ class ReceiveWebhook:
                 logger.warning(
                     "onekhusa_webhook_invalid_transition",
                     event_type=event.value,
-                    source_reference=source_reference,
+                    merchant_reference=merchant_reference,
                     current_status=payment.status,
                     error=str(exc),
                 )
@@ -140,7 +142,7 @@ class ReceiveWebhook:
             logger.info(
                 "onekhusa_webhook_processed",
                 event_type=event.value,
-                source_reference=source_reference,
+                merchant_reference=merchant_reference,
                 provider_reference=payment.transaction_reference_number,
                 status=payment.status,
             )
