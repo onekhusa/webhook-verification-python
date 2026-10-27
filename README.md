@@ -2,7 +2,7 @@
 
 A teaching reference that splits a copyable OneKhusa integration kit from a FastAPI demo application. It initiates push payments through the OneKhusa Collections sandbox and verifies signed callbacks with the raw request body before parsing.
 
-All payment state lives in memory. This is not production-ready.
+All payment state lives in memory.
 
 ## Quick start
 
