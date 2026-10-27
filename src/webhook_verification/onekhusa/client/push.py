@@ -23,6 +23,8 @@ from webhook_verification.onekhusa.errors import OneKhusaError, response_error
 
 logger = logging.getLogger(__name__)
 
+ACCEPTED_RESPONSE_CODE = "I100"
+
 AccountReference = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)
 ]
@@ -124,7 +126,6 @@ class PushPaymentClient:
             "Content-Type": "application/json",
         }
         url = f"{self._settings.onekhusa_base_url.rstrip('/')}/collections/push/direct/initiate"
-
         logger.debug(
             "Sending push-payment request to OneKhusa: source_reference=%s",
             source_reference_number,
@@ -166,17 +167,17 @@ class PushPaymentClient:
             )
             raise error
 
-        reference = self._transaction_reference(response, source_reference_number)
+        response_code = self._acceptance_response_code(response, source_reference_number)
 
         logger.info(
-            "OneKhusa accepted push-payment request: source_reference=%s transaction_reference=%s",
+            "OneKhusa accepted push-payment request: source_reference=%s response_code=%s",
             source_reference_number,
-            reference or "not_provided",
+            response_code or "not_provided",
         )
 
         return PushPaymentResult(
             http_status=response.status_code,
-            transaction_reference_number=reference,
+            transaction_reference_number=None,
             message="OneKhusa accepted the push-payment request",
         )
 
@@ -202,33 +203,45 @@ class PushPaymentClient:
         ).encode()
 
     @staticmethod
-    def _transaction_reference(
+    def _acceptance_response_code(
         response: httpx.Response,
         source_reference_number: str,
     ) -> str | None:
         try:
             response_payload: Any = response.json()
         except ValueError:
-            response_payload = None
             logger.warning(
                 "OneKhusa returned a non-JSON success response: source_reference=%s",
                 source_reference_number,
             )
+            return None
 
-        reference = (
-            response_payload.get("transactionReferenceNumber")
-            if isinstance(response_payload, dict)
-            else None
-        )
-
-        if reference is not None and not isinstance(reference, str):
+        if not isinstance(response_payload, dict):
             logger.warning(
-                "OneKhusa returned an invalid transaction reference type: source_reference=%s",
+                "OneKhusa returned an unexpected success response: source_reference=%s",
                 source_reference_number,
             )
             return None
 
-        return reference
+        response_code = response_payload.get("responseCode")
+        if response_code is not None and response_code != ACCEPTED_RESPONSE_CODE:
+            logger.warning(
+                "OneKhusa returned an unexpected response code: "
+                "source_reference=%s response_code=%s",
+                source_reference_number,
+                response_code,
+            )
+            raise OneKhusaError(f"OneKhusa returned response code {response_code}")
+
+        logger.info(
+            "OneKhusa push-payment acknowledgement: source_reference=%s "
+            "response_code=%s amount_to_pay=%s",
+            source_reference_number,
+            response_code or "not_provided",
+            response_payload.get("amountToPay", "not_provided"),
+        )
+
+        return response_code if isinstance(response_code, str) else None
 
 
 def provider_idempotency_key(merchant_account_number: int, source_reference_number: str) -> str:
