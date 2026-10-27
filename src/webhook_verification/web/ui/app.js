@@ -124,7 +124,7 @@ function applyConfiguration() {
   const notice = document.querySelector("#provider-notice");
   notice.classList.toggle("warning", !available);
   notice.textContent = available
-    ? `Sandbox connection configured: ${clientConfig.onekhusaBaseUrl}. Submitting may send a test prompt to the payer phone.`
+    ? `Sandbox connection configured: ${clientConfig.onekhusaBaseUrl}. Submitting may send a test prompt to the merchant portal.`
     : "OneKhusa sandbox is not enabled or credentials are incomplete. Configure ONEKHUSA_ENABLED and the ONEKHUSA_* credentials in the server .env.";
   createButton.disabled = !available;
 }
@@ -132,7 +132,7 @@ function applyConfiguration() {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!window.confirm(
-    "Send a real request to the OneKhusa SANDBOX? The sandbox may send a test push prompt to the payer phone.",
+    "Send a real request to the OneKhusa SANDBOX? The sandbox may send a test push prompt to the merchant portal.",
   )) return;
   createButton.disabled = true;
   try {
