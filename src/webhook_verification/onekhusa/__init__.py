@@ -1,6 +1,8 @@
-"""OneKhusa Collections protocol adapter."""
+"""Reusable OneKhusa Collections integration kit.
 
-from webhook_verification.onekhusa.client import OneKhusaClient
-from webhook_verification.onekhusa.errors import OneKhusaError
+Copy this package when integrating OneKhusa push payments. It contains the
+token cache, initiation contracts, webhook verification and typed provider
+errors. It has no dependency on the demo application.
+"""
 
-__all__ = ["OneKhusaClient", "OneKhusaError"]
+from __future__ import annotations
