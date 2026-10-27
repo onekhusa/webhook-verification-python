@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <main class="shell">
+      <section class="intro">
+        <div class="eyebrow">Developer sandbox</div>
+        <h1>OneKhusa push payment<br />test bench</h1>
+        <p>Submit a push payment to the OneKhusa sandbox and follow its lifecycle as authenticated callbacks arrive. Transactions remain in memory and disappear when the server restarts.</p>
+        <div class="notice">
+          <span aria-hidden="true">ⓘ</span>
+          <span><strong>Sandbox requests only.</strong> Submitting sends a real request to the configured OneKhusa sandbox and may send a test payment prompt to the entered phone number. No transaction data is written to a database.</span>
+        </div>
+      </section>
+
+      <section class="layout" aria-label="OneKhusa push payment test bench">
+        <section class="card" aria-labelledby="form-title">
+          <div class="card-head">
+            <div class="card-head-row">
+              <h2 id="form-title">New push payment</h2>
+              <span class="step-label">01 / Submit</span>
+            </div>
+            <p class="card-subtitle">Enter payment details to send to the OneKhusa sandbox.</p>
+          </div>
+          <form id="payment-form">
+            <div class="provider-notice" id="provider-notice" aria-live="polite"></div>
+            <div class="field">
+              <label for="payer">Payer phone or account</label>
+              <input id="payer" name="payer" autocomplete="tel" inputmode="tel" value="+265 991 234 567" required maxlength="80" />
+              <span class="field-hint">Only the last four digits appear in the dashboard.</span>
+            </div>
+            <div class="two-col">
+              <div class="field">
+                <label for="amount">Amount</label>
+                <input id="amount" name="amount" type="number" min="0.01" max="9999999999999999" step="0.01" value="12500.00" required />
+              </div>
+              <div class="field">
+                <label for="connector">Connector ID</label>
+                <input id="connector" name="connector" type="number" min="1" step="1" value="892353" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="description">Payment description</label>
+              <input id="description" name="description" value="Invoice INV-2026-1042" required maxlength="500" />
+            </div>
+            <div class="field">
+              <label for="captured-by">Captured by</label>
+              <input id="captured-by" name="capturedBy" value="demo-merchant" required maxlength="150" />
+            </div>
+            <div class="field">
+              <label for="reference">Merchant reference</label>
+              <input id="reference" name="reference" placeholder="ORDER-1042" required maxlength="100" />
+              <span class="field-hint">Required. Reusing the same reference with an identical request reuses the existing submission.</span>
+            </div>
+            <button class="primary" id="create-button" type="submit"><span>↗</span> Send push to OneKhusa sandbox</button>
+          </form>
+        </section>
+
+        <div class="right-column">
+          <section class="card" id="current-card" aria-live="polite">
+            <div class="empty-state" id="empty-state">
+              <div class="empty-icon">⌁</div>
+              <h3>Ready when you are</h3>
+              <p>Submit a push payment to the OneKhusa sandbox. It will appear here in a pending state, waiting for a callback.</p>
+            </div>
+            <article class="transaction hidden" id="transaction-view">
+              <div class="transaction-top">
+                <div class="transaction-title">
+                  <p class="reference" id="transaction-reference"></p>
+                  <p class="transaction-description" id="transaction-description"></p>
+                </div>
+                <span class="status" id="transaction-status"></span>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-item"><span class="summary-label">Amount</span><span class="summary-value" id="transaction-amount"></span></div>
+                <div class="summary-item"><span class="summary-label">Payer ending</span><span class="summary-value" id="transaction-payer"></span></div>
+                <div class="summary-item"><span class="summary-label">Provider ref</span><span class="summary-value" id="transaction-id"></span></div>
+              </div>
+              <div class="callback-note">
+                <p class="control-title">02 / Await callback</p>
+                <p class="flow-note">OneKhusa posts to <code>/webhook/pushpayment</code>. The signature is verified over the raw request body before the payload is parsed or the status changes.</p>
+                <p class="flow-note hidden" id="provider-waiting">Request accepted by OneKhusa. The status stays pending until an authenticated callback arrives.</p>
+                <p class="flow-note hidden" id="provider-result"></p>
+              </div>
+            </article>
+          </section>
+
+          <section class="card">
+            <div class="activity-head">
+              <div>
+                <h2>Recent payments</h2>
+                <p class="card-subtitle">Current server session · memory only</p>
+              </div>
+              <button class="clear-button" id="clear-button" type="button">Clear session</button>
+            </div>
+            <div class="activity-list" id="activity-list">
+              <div class="empty-state" style="padding:28px 10px">
+                <p>No payment activity yet.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+      <footer>OneKhusa Push Payment Test Bench · Test data only · Session state is not persisted</footer>
+    </main>
+{% endblock %}
