@@ -126,20 +126,22 @@ class PaymentSession:
     def find_for_webhook(
         self,
         *,
-        source_reference: str | None,
+        merchant_reference: str | None,
         provider_reference: str | None,
     ) -> Payment | None:
-        if source_reference:
-            payment = self.find_by_source_reference(source_reference)
-            if payment is None:
+        if merchant_reference:
+            payment = self.find_by_source_reference(merchant_reference)
+            if payment is not None:
+                if not provider_reference:
+                    return payment
+                if payment.transaction_reference_number == provider_reference:
+                    return payment
+                if payment.transaction_reference_number.startswith(PLACEHOLDER_REFERENCE_PREFIX):
+                    return payment
+                # A matching merchant reference with a different, already known
+                # provider reference is a conflict. Do not fall back to another
+                # payment, or a callback could be applied to the wrong record.
                 return None
-            if not provider_reference:
-                return payment
-            if payment.transaction_reference_number == provider_reference:
-                return payment
-            if payment.transaction_reference_number.startswith(PLACEHOLDER_REFERENCE_PREFIX):
-                return payment
-            return None
 
         if provider_reference:
             return next(
