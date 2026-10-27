@@ -72,7 +72,7 @@ The UI displays the payer number only as its last four characters. Each callback
 - `GET /api/payments` — recent in-memory payments.
 - `DELETE /api/payments` — clear all current process-memory payments.
 - `GET /api/config` — safe client configuration: `onekhusaEnabled`, `onekhusaSandbox`, and the sandbox `onekhusaBaseUrl`; credentials are never exposed.
-- `POST /api/onekhusa/push-payments` — obtain/cache a token and initiate a push payment through the configured OneKhusa sandbox. Requires `ONEKHUSA_ENABLED=true`, all credentials, and `sourceReferenceNumber`. Returns `202` with the pending payment, `409` when the source reference is reused with a different request, `422` when the reference is missing, `502` when the provider rejects or times out, and `503` when OneKhusa is not configured.
+- `POST /api/onekhusa/push-payments` — obtain/cache a token and initiate a push payment through the configured OneKhusa sandbox. Requires `ONEKHUSA_ENABLED=true`, all credentials, and `sourceReferenceNumber` (the merchant reference OneKhusa later echoes as `merchantReferenceNumber`). Returns `202` with the pending payment, `409` when the source reference is reused with a different request, `422` when the reference is missing, `502` when the provider rejects or times out, and `503` when OneKhusa is not configured.
 - `POST /webhook/pushpayment` — accept real OneKhusa callback payloads. This route verifies the original raw body using HMAC-SHA512 and the matching event-specific secret before changing in-memory payment status.
 - `GET /api/health` — liveness check.
 
@@ -89,7 +89,7 @@ Example request:
 }
 ```
 
-A successful response is a payment record whose `paymentId` is the local record identifier and whose `transactionReferenceNumber` is the provider reference. Before the initiation response is stored, the record uses a `PENDING-TXN-` placeholder that a matching callback can reconcile.
+A successful initiation response is recorded in `pending` state with a `PENDING-TXN-` placeholder. OneKhusa's documented initiation response contains `responseCode: I100` and does not include a provider transaction reference; the real `transactionReferenceNumber` arrives with the first callback and replaces the placeholder. An explicit non-`I100` response code is treated as a provider rejection.
 
 The incoming webhook expects `X-OneKhusa-Webhook-Event` and `X-OneKhusa-Webhook-Signature`. Configure the appropriate secret for every push event you subscribe to:
 
@@ -119,6 +119,8 @@ The access-token request sends `apiKey`, `apiSecret`, `organisationId`, and `mer
 - Terminal or unsupported transitions are rejected with `409`.
 - Duplicate callback events are ignored within the in-memory receipt window.
 - Callbacks that match no stored payment are acknowledged without changing state.
+
+Callbacks are correlated by the merchant reference. OneKhusa echoes the merchant's submitted `sourceReferenceNumber` as `merchantReferenceNumber`; the webhook's `sourceReferenceNumber` is the payer's bank/MNO reference and is not used for matching. If `merchantReferenceNumber` is missing (legacy payloads), the receiver falls back to the provider `transactionReferenceNumber`. A matching merchant reference with a conflicting, already-known provider reference is treated as unmatched rather than being applied to a different payment.
 
 Payment state exists only in memory. This project is a development test bench, not a production payment service: restarts lose payments and callbacks cannot be reconciled after state is lost.
 
