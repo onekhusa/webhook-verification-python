@@ -8,7 +8,7 @@
         <p>Submit a push payment to the OneKhusa sandbox and follow its lifecycle as authenticated callbacks arrive. Transactions remain in memory and disappear when the server restarts.</p>
         <div class="notice">
           <span aria-hidden="true">ⓘ</span>
-          <span><strong>Sandbox requests only.</strong> Submitting sends a real request to the configured OneKhusa sandbox and may send a test payment prompt to the entered phone number. No transaction data is written to a database.</span>
+          <span><strong>Sandbox requests only.</strong> Submitting sends a real request to the configured OneKhusa sandbox and may send a test payment prompt to the merchant portal. No transaction data is written to a database.</span>
         </div>
       </section>
 
@@ -25,7 +25,7 @@
             <div class="provider-notice" id="provider-notice" aria-live="polite"></div>
             <div class="field">
               <label for="payer">Payer phone or account</label>
-              <input id="payer" name="payer" autocomplete="tel" inputmode="tel" value="+265 991 234 567" required maxlength="80" />
+              <input id="payer" name="payer" autocomplete="tel" inputmode="tel" value="221100000101" required maxlength="80" />
               <span class="field-hint">Only the last four digits appear in the dashboard.</span>
             </div>
             <div class="two-col">
@@ -35,16 +35,16 @@
               </div>
               <div class="field">
                 <label for="connector">Connector ID</label>
-                <input id="connector" name="connector" type="number" min="1" step="1" value="892353" required />
+                <input id="connector" name="connector" type="number" min="1" step="1" value="112400" required />
               </div>
             </div>
             <div class="field">
               <label for="description">Payment description</label>
-              <input id="description" name="description" value="Invoice INV-2026-1042" required maxlength="500" />
+              <input id="description" name="description" value="Invoice INV20261042" required maxlength="500" />
             </div>
             <div class="field">
               <label for="captured-by">Captured by</label>
-              <input id="captured-by" name="capturedBy" value="demo-merchant" required maxlength="150" />
+              <input id="captured-by" name="capturedBy" value="user@onekhusa.com" required maxlength="150" />
             </div>
             <div class="field">
               <label for="reference">Merchant reference</label>
