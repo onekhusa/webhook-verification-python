@@ -1,0 +1,10 @@
+from __future__ import annotations
+
+from datetime import UTC, datetime
+
+
+class SystemClock:
+    """UTC clock used by the application layer."""
+
+    def now(self) -> datetime:
+        return datetime.now(UTC)
